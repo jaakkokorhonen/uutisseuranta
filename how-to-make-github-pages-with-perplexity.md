@@ -2,6 +2,8 @@
 
 A practical guide for building and deploying a static website to GitHub Pages using Perplexity as your AI coding and content assistant.
 
+> **Real session note:** This guide was updated based on an actual session where Perplexity built and deployed [uutisseuranta.github.io](https://uutisseuranta.github.io) and configured the custom domain `uutisseuranta.net` — step by step, entirely through conversation.
+
 ---
 
 ## Overview
@@ -17,7 +19,9 @@ A practical guide for building and deploying a static website to GitHub Pages us
 
 ## Step 1: Prepare Your Repository
 
-If you don't have a repository yet, create one on GitHub. This repo (`uutisseuranta`) is already set up.
+If you don't have a repository yet, create one on GitHub. For a GitHub Pages site served directly at `https://username.github.io`, the repository **must be named `username.github.io`** (or `orgname.github.io` for an organization).
+
+In this session, the repository [uutisseuranta/uutisseuranta.github.io](https://github.com/uutisseuranta/uutisseuranta.github.io) was used so the site is served at `https://uutisseuranta.github.io`.
 
 Decide which deployment source you want:
 
@@ -35,19 +39,22 @@ For a quick start, the `main` branch root is the easiest.
 
 Open Perplexity and describe what you want to build. Be specific — the more context you give, the better the output.
 
-**Example prompts:**
+**Example prompt used in this session:**
 
 ```
-Build a single-file HTML news tracker dashboard. Dark/light mode toggle,
-cards for each news source, last-updated timestamps. Use Tailwind CDN.
-No build tools — must work as a static file on GitHub Pages.
+Make this into a github pages:
+https://github.com/jaakkokorhonen/uutisseuranta
 ```
 
-```
-Write a responsive landing page for a Finnish news aggregator project.
-Minimalist design, Finnish and English language toggle, no frameworks,
-plain HTML/CSS/JS only. Include a <head> with correct meta tags.
-```
+Perplexity fetched the repository, understood the project (a Finnish news aggregator), and generated a full single-file `index.html` with:
+- Finnish-language copy and editorial design
+- Sticky nav with SVG logo and dark/light mode toggle
+- Hero section with animated pulse indicator and stats
+- News feed in an asymmetric 2+1 editorial grid
+- Features section with a live source activity bar chart widget
+- Topics grid with 12 clickable topic chips
+- Open-source CTA section
+- Fully responsive mobile layout
 
 **Key constraints to always mention to Perplexity:**
 - "Single static HTML file" or "pure HTML/CSS/JS"
@@ -71,38 +78,32 @@ The nav bar overlaps the hero section on mobile (375px width).
 Fix the CSS so the nav stacks vertically below 768px.
 ```
 
-```
-Add a search/filter input above the news cards that filters
-cards by title text in real-time using vanilla JavaScript.
-```
-
 Repeat until the result matches your vision. Perplexity maintains context within a conversation thread, so you can iterate without re-explaining the full project each time.
 
 ---
 
-## Step 4: Commit Your Files
+## Step 4: Push the File to GitHub
 
-Once satisfied, add your files to the repository. You can do this via the GitHub web UI or git CLI.
+Perplexity can push files directly to GitHub using its MCP (Model Context Protocol) GitHub integration — no local git required.
 
-### Via GitHub web UI
+In this session, after the first push attempt had a formatting issue, the retry worked by creating the file directly via the GitHub API:
 
-1. Go to your repository on GitHub
-2. Click **Add file → Create new file** (or **Upload files**)
-3. Name it `index.html` (GitHub Pages serves this as the root page)
-4. Paste the generated code
-5. Commit directly to `main`
+```
+try pushing again
+```
 
-### Via git CLI
+Perplexity pushed `index.html` to `uutisseuranta/uutisseuranta.github.io` on the `main` branch in a single commit: [`03829e0`](https://github.com/uutisseuranta/uutisseuranta.github.io/commit/03829e07db364d2f2cd0fb8810437b0fbde41d2f).
+
+### Via git CLI (alternative)
 
 ```bash
-git clone https://github.com/jaakkokorhonen/uutisseuranta.git
-cd uutisseuranta
+git clone https://github.com/uutisseuranta/uutisseuranta.github.io.git
+cd uutisseuranta.github.io
 
-# Copy your generated file
-cp ~/Downloads/generated-site.html index.html
+cp ~/path/to/generated-site.html index.html
 
 git add index.html
-git commit -m "feat: add GitHub Pages site"
+git commit -m "Initial GitHub Pages site"
 git push origin main
 ```
 
@@ -110,12 +111,9 @@ git push origin main
 
 | File | Purpose |
 |---|---|
-| `index.html` | Root page — served at `https://username.github.io/repo/` |
+| `index.html` | Root page — served at `https://username.github.io/` |
 | `404.html` | Custom not-found page |
-| `style.css` | External stylesheet (optional) |
-| `script.js` | External script (optional) |
-
-For single-file sites (all CSS and JS inlined), only `index.html` is needed.
+| `CNAME` | Custom domain (see Step 7) |
 
 ---
 
@@ -125,7 +123,7 @@ For single-file sites (all CSS and JS inlined), only `index.html` is needed.
 
 This is the one required manual step. Without it, your site will not be served even if `index.html` exists on the branch.
 
-1. Go to [Settings → Pages](https://github.com/jaakkokorhonen/uutisseuranta/settings/pages) in your repo
+1. Go to [Settings → Pages](https://github.com/uutisseuranta/uutisseuranta.github.io/settings/pages) in your repo
 2. Under **Source**, select **Deploy from a branch**
 3. Choose branch: `main`, folder: `/ (root)`
 4. Click **Save**
@@ -134,7 +132,7 @@ GitHub will build and deploy the site. The first deploy takes 1–3 minutes.
 
 Your site URL will be:
 ```
-https://jaakkokorhonen.github.io/uutisseuranta/
+https://uutisseuranta.github.io
 ```
 
 ---
@@ -157,7 +155,61 @@ https://jaakkokorhonen.github.io/uutisseuranta/
 
 ---
 
-## Step 7: Iterate with Perplexity
+## Step 7: Add a Custom Domain (with Cloudflare)
+
+In this session, `uutisseuranta.net` (managed in Cloudflare) was configured to point to the GitHub Pages site. The process has a specific order — doing it out of order breaks SSL provisioning.
+
+### 7a. Add DNS records in Cloudflare
+
+Go to **Cloudflare → uutisseuranta.net → DNS → Records** and add:
+
+**Four A records** (apex domain → GitHub's IPs). Set **Proxy status = DNS only (grey cloud)**:
+
+| Type | Name | Content |
+|------|------|---------|
+| A | @ | `185.199.108.153` |
+| A | @ | `185.199.109.153` |
+| A | @ | `185.199.110.153` |
+| A | @ | `185.199.111.153` |
+
+**One CNAME record** for `www`:
+
+| Type | Name | Content |
+|------|------|---------|
+| CNAME | www | `uutisseuranta.github.io` |
+
+> ⚠️ The **grey cloud (DNS only)** is critical at this stage. If Cloudflare proxies traffic, GitHub cannot provision your SSL certificate and "Enforce HTTPS" stays greyed out.
+
+### 7b. Push the CNAME file
+
+Perplexity pushed a `CNAME` file to the repo root containing just:
+
+```
+uutisseuranta.net
+```
+
+Prompt used:
+```
+Push a file named CNAME (no extension) to the root of the main
+branch containing just the domain: uutisseuranta.net
+```
+
+Perplexity discovered the file already existed with the correct content, so no change was needed.
+
+### 7c. Set the custom domain in GitHub Pages settings
+
+1. Go to **Settings → Pages** in your repo
+2. Under **Custom domain**, type `uutisseuranta.net` and click **Save**
+3. GitHub begins a DNS check — wait 5–30 minutes for propagation
+4. Once the check passes, tick **Enforce HTTPS**
+
+### 7d. Optionally re-enable Cloudflare proxy
+
+After GitHub has issued the SSL certificate, you can enable the **orange cloud (Proxied)** on the A records in Cloudflare to get CDN, DDoS protection, and analytics. Set SSL/TLS mode to **Full (strict)** to avoid redirect loops.
+
+---
+
+## Step 8: Iterate with Perplexity
 
 After the site is live, continue improving it through Perplexity conversations. Useful iteration patterns:
 
@@ -194,20 +246,33 @@ for this news tracker site. Include Finnish-language og:locale.
 - **Ask for explanations** alongside code: `"Explain the CSS Grid layout you used"` — this helps you maintain the code later
 - **Version your files** in git before major changes so you can roll back
 - **Use the file viewer** — paste generated HTML into [htmlpreview.github.io](https://htmlpreview.github.io/) for a quick preview before committing
+- **Perplexity can push directly** — if you have the GitHub MCP integration enabled, you can skip local git entirely and ask Perplexity to push, update, or create files directly
 
 ---
 
-## Example Workflow Summary
+## Actual Session Summary
+
+This is what happened in the real session that produced this guide:
 
 ```
-1. Describe project to Perplexity → get index.html
-2. Open in browser → identify issues
-3. Ask Perplexity to fix issues → update file
-4. Repeat until satisfied
-5. git add index.html && git commit -m "..." && git push
-6. Enable GitHub Pages: Settings → Pages → Deploy from branch → main / (root) → Save
-7. GitHub Pages auto-deploys in ~2 minutes
-8. Visit https://jaakkokorhonen.github.io/uutisseuranta/
+1. Prompt: "Make this into a github pages: https://github.com/jaakkokorhonen/uutisseuranta"
+   → Perplexity generated full index.html (Finnish editorial landing page)
+
+2. Prompt: "try pushing again"
+   → Perplexity pushed index.html to uutisseuranta/uutisseuranta.github.io (main branch)
+   → Commit: 03829e0
+
+3. Manual step: Enable GitHub Pages in repo Settings → Pages
+   → Site live at https://uutisseuranta.github.io
+
+4. Prompt: "how do i configure uutisseuranta.net from cloudflare to work towards https://uutisseuranta.github.io"
+   → Perplexity explained DNS A records, CNAME record, Cloudflare proxy settings
+
+5. Prompt: "Push a file named CNAME (no extension) to the root of the main branch containing just the domain: uutisseuranta.net"
+   → CNAME file already existed with correct content — no action needed
+
+6. Manual step: Add DNS records in Cloudflare, set custom domain in GitHub Pages Settings
+   → https://uutisseuranta.net live
 ```
 
 ---
@@ -215,10 +280,10 @@ for this news tracker site. Include Finnish-language og:locale.
 ## Resources
 
 - [GitHub Pages documentation](https://docs.github.com/en/pages)
-- [GitHub Pages supported content](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages)
+- [uutisseuranta.github.io repository](https://github.com/uutisseuranta/uutisseuranta.github.io)
 - [Perplexity](https://www.perplexity.ai/)
 - [HTML Preview for GitHub](https://htmlpreview.github.io/)
 
 ---
 
-*Guide created with Perplexity AI — June 2026*
+*Guide created and updated with Perplexity AI — June 2026*
