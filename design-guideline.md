@@ -15,7 +15,7 @@ Ulkoasu perustuu soveltuvilta osin D-CENT Pattern Labiin:
 - vaaleat taustat: `#EEE`, `#D3FFFD`, `#FFEAFC`
 - patternit: `tabs`, `tags`, `stream-item`, `notification`, `stream`
 
-Näitä ei kopioida mekaanisesti pikselilleen, vaan niistä rakennetaan Uutisseurannalle yhtenäinen HTML/CSS-toteutus.
+Näitä ei kopioida mekaanisesti pikselilleen, vaan niistä rakennetaan Uutisseurannalle yhteinäinen HTML/CSS-toteutus.
 
 ## Mitä poistetaan
 
@@ -66,14 +66,14 @@ Uusi etusivu rakentuu viidestä perusosasta:
 
 ## Typografia
 
-Typografian tulee olla lähempänä D-CENTin henkeä kuin nykyistä sivua.
+Typografian tulee olla lähempänä D-CENTin henkea kuin nykyistä sivua.
 
 Suositus:
 - otsikot: `Comfortaa`, sans-serif
 - leipäteksti: `Muli`, `Muli Regular` tai lähellä oleva kevyt sans-serif
-- jos Muli ei ole helposti saatavilla CDN:n kautta, voidaan käyttää neutraalia fallbackia kuten `Arial`, mutta visuaalinen tavoite pysyy kevyenä civic-tech-sansina
+- jos Muli ei ole helposti saatavilla CDN:n kautta, voidaan käyttää neutraalia fallbackia kuten `Arial`, mutta visuaalinen tavoite pysyy kevenä civic-tech-sansina
 
-Typografiasäännöt:
+TypografiASäännöt:
 - otsikot pyöristetympiä ja ystävällisiä
 - leipäteksti neutraalia ja hyvin luettavaa
 - ei raskasta display-typografiaa
@@ -113,7 +113,7 @@ Säännöt:
 ### Tabit
 - tabit muistuttavat D-CENT `tab`-rakennetta
 - aktiivinen tabi liittyy visuaalisesti sisältöpaneeliin
-- tabit ovat litteitä, eivät pill-chipsejä
+- tabit ovat litteä, eivät pill-chipsejä
 
 ### Tagit
 - pieni fontti
@@ -127,7 +127,7 @@ Säännöt:
 - tagit alle
 - action-rivi alimmaksi
 - erotellaan toisistaan ohuilla viivoilla tai tilalla
-- ei korttiruudukkoa päälistaukseen
+- ei korttiruučukkoa päälistaukseen
 
 ## Layout
 
@@ -142,7 +142,7 @@ Rakenne:
 Responsiivisuus:
 - mobiilissa kaikki pinoutuu yhdeksi kolumniksi
 - desktopissa stream voi olla keskitetty ja infolohkot oikealla tai alhaalla
-- layout saa näyttää kevyeltä keskustelu- ja uutisalustalta, ei kampanjasivulta
+- layout saa näyttää keveltä keskustelu- ja uutisalustalta, ei kampanjasivulta
 
 ## Tekninen rajaus
 
@@ -154,6 +154,33 @@ Tämä redesign toteutetaan seuraavilla ehdoilla:
 - ei UI-rakenteita, jotka rakentuvat auth-tilan ympärille
 - kaikki käyttöliittymäelementit toimivat ilman backend-riippuvuutta
 
+## Tiedostorakenne
+
+Kaikki staattiset tiedostot — HTML, CSS, JS, kuvat, ikonit, fontit — sijaitsevat **repositorion juuressa**. Erillistä `assets/`-kansiota ei käytetä.
+
+Perustelu: projekti noudattaa “ei alikansioita” -periaatetta (ks. `ARCHITECTURE.md`). Kaikki tiedostot ovat tasaisesti juuressa, GitHub Pages servaa ne suoraan rootista, eikä polkuja tarvitse hallita erikseen.
+
+Hyväksytty rakenne:
+```
+uutisseuranta/
+├── index.html
+├── style.css
+├── app.js
+├── logo.svg        ← juuri, ei assets/logo.svg
+├── favicon.ico     ← juuri, ei assets/favicon.ico
+├── icon-*.svg      ← juuri, ei assets/icons/
+└── *.woff2         ← juuri, jos omia fontteja käytetään
+```
+
+Kielletty:
+```
+uutisseuranta/
+└── assets/         ← älä luo tätä kansiota
+    ├── images/
+    ├── icons/
+    └── fonts/
+```
+
 ## Toteutusperiaate repoa varten
 
 `index.html` korvataan uudella rakenteella. Tiedosto voi sisältää:
@@ -164,7 +191,7 @@ Tämä redesign toteutetaan seuraavilla ehdoilla:
 
 Mahdollinen jatkorakenne:
 - `index.html`
-- `styles.css`
+- `style.css`
 - `logo.svg`
 
 ## Hyväksymiskriteerit
@@ -173,6 +200,7 @@ Design-uudistus on onnistunut, kun:
 - sivu ei enää muistuta nykyistä punaista landing pagea
 - sivu näyttää D-CENT-henkiseltä mutta Uutisseurannalle sovitetulta
 - uutiset esitetään streamina, ei startup-feature-kortteina
-- tabit, tagit ja stream-itemit muodostavat yhtenäisen käyttöliittymän
-- koko sivu toimii ilman Firebase-kytkentää
-- ulkoasu on selvästi vanillalla tehty, kevyt ja helposti jatkokehitettävä
+- tabit, tagit ja stream-itemit muodostavat yhteinäisen käyttöliittymän
+- koko sivu toimii ilman Firebase-kytkenstää
+- ulkoasu on selvästi vanillalla tehty, kevyt ja helposti jatkokehitettavä
+- **kaikki tiedostot — myös assetit — sijaitsevat repositorion juuressa**
