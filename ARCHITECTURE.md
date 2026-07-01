@@ -127,12 +127,13 @@ Kaikki komponentit elävät juuritason tiedostoissa – ei alikansioita, ei komp
 
 ## Firebase-rajaus
 
-Firebase-SDK:ta käytetään **ainoastaan** kahdessa tarkoituksessa:
+Firebase-SDK:ta käytetään **ainoastaan** kolmessa tarkoituksessa:
 
-1. **Authentication** (`firebase-auth`) — Google Sign-In, kirjautumistilan seuranta, uloskirjautuminen
-2. **Analytics** (`firebase-analytics`) — automaattinen käyttödatan keruu, linkitetty GA4-propertyyn
+1. **Authentication** (`firebase-auth`) — Google Sign-In, kirjautumistilan seuranta, uloskirjautuminen.
+2. **Analytics** (`firebase-analytics`) — automaattinen käyttödatan keruu, linkitetty GA4-propertyyn.
+3. **Database** (`firebase-firestore`) — käyttäjäpreferenssien (seuratut tagit) synkronointi laitteiden välillä offline-tuella.
 
-Kaikki muu toiminnallisuus (tietokanta, tallennus, hosting, funktiot jne.) toteutetaan muilla teknologioilla. Firebase-SDK:n laajentaminen uusiin palveluihin vaatii eksplisiittisen arkkitehtuuripäätöksen ennen toteutusta.
+Kaikki muu toiminnallisuus (uutisten haku, tallennus, hosting, funktiot jne.) toteutetaan muilla teknologioilla. Firebase-SDK:n laajentaminen uusiin palveluihin vaatii eksplisiittisen arkkitehtuuripäätöksen ennen toteutusta.
 
 Firebase SDK ladataan ES-moduuleina suoraan Googlen CDN:ltä ilman build-steppiä:
 ```html
@@ -140,6 +141,7 @@ Firebase SDK ladataan ES-moduuleina suoraan Googlen CDN:ltä ilman build-steppi�
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, ... } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js';
+  import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 </script>
 ```
 
