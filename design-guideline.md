@@ -55,9 +55,9 @@ Uusi etusivu rakentuu viidestä perusosasta:
 - stream on pystysuuntainen, luettava ja modulaarinen
 
 ### 4. Tagit
-- aiheet esitetään tageina, ei isoina chip-kortteina
+- aiheet esitetään isoina chip-kortteina joista ilmenee myös tagit
 - perus-tagit neutraalilla tai vaalealla taustalla
-- seuratut / painotetut / poissuljetut tilat voidaan myöhemmin erottaa väreillä
+- seuratut / painotetut / poissuljetut tilat erotetaan väreillä jotka on määritelty d-cent patterneissa
 - tagien mittasuhteet pidetään kompakteina
 
 ### 5. Notification / info blocks
@@ -165,7 +165,7 @@ Tämä redesign toteutetaan seuraavilla ehdoilla:
 Mahdollinen jatkorakenne:
 - `index.html`
 - `styles.css`
-- `assets/logo.svg`
+- `logo.svg`
 
 ## Hyväksymiskriteerit
 
