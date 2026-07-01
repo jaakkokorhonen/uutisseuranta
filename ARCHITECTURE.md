@@ -52,10 +52,27 @@ Kaikki komponentit elävät juuritason tiedostoissa – ei alikansioita, ei komp
 
 ### Typografia
 
-- Fontit ladataan **Fontshare CDN:ltä** (`api.fontshare.com`) – ei Google Fontsia.
+- **Ei ulkoisia fontti-CDN-riippuvuuksia** (ei Fontshare, ei Google Fonts). Fonttilatauksista ei saa syntyä kolmannen osapuolen verkkopyyntöjä.
+- Ensisijainen ratkaisu: **järjestelmäfonttipino** (`system-ui`, `-apple-system`, `Segoe UI`, `sans-serif`). Toimii ilman latauksia, nolla CDN-riippuvuuksia.
+- Tarvittaessa omien fonttitiedostojen lataus `@font-face` + `local()`-menetelmällä – fontit voivat sijaita repositorion juuressa tai käyttäjän laitteella jo valmiina. Ei ulkoisia URL-osoitteita `src:`-arvossa.
 - Nestemäinen kirjasinkoko `clamp()`-funktiolla kaikissa tekstielementeissä.
 - Kehon teksti: `--text-base` (16 px). Napit: `--text-sm` (14 px). Minimialaraja: 12 px.
 - Otsikkofontit (`--font-display`) vain koossa `--text-xl` (24 px) tai suuremmissa.
+
+```css
+/* style.css – hyväksytty typografiaratkaisu */
+:root {
+  --font-body:    system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Vaihtoehto: oma fonttitiedosto repositoriossa */
+@font-face {
+  font-family: 'OmaFontti';
+  src: local('OmaFontti'), url('./omafontit/OmaFontti.woff2') format('woff2');
+  font-display: swap;
+}
+```
 
 ### Layoutperiaatteet
 
@@ -93,7 +110,7 @@ Kaikki komponentit elävät juuritason tiedostoissa – ei alikansioita, ei komp
 | Logiikka | JavaScript (vanilla ES-moduulit) | Standardi, ei frameworkia |
 | Autentikointi | Firebase Authentication | Ks. Firebase-rajaus |
 | Analytiikka | Firebase Analytics + GA4 | Ks. Firebase-rajaus |
-| Fontit | Fontshare CDN | Laadukkaat, ei Google Fonts -ylitarjontaa |
+| Fontit | Järjestelmäfonttipino tai `@font-face` + `local()` | Ei CDN-riippuvuuksia, avoimen standardin ratkaisu |
 | Testit | Bash + `curl` + standardit Unix-työkalut | Ks. Testausstrategia |
 
 ### Kielletyt teknologiat
@@ -104,6 +121,7 @@ Kaikki komponentit elävät juuritason tiedostoissa – ei alikansioita, ei komp
 - **Build-työkalut** (Webpack, Vite, Rollup, Parcel, tms.) — ei build-steppiä.
 - **Erillinen monitorointipalvelu** (Datadog, Sentry, tms.) — laatu varmistetaan pipelinessa ennen tuotantoa.
 - **PR preview -ympäristöt** (Netlify, Cloudflare Pages, tms.) — pipeline testaa ennen mergeä, erillisiä preview-ympäristöjä ei tarvita.
+- **Ulkoiset fontti-CDN:t** (Google Fonts, Fontshare, Adobe Fonts, tms.) — fonttilatauksista ei saa syntyä kolmannen osapuolen verkkopyyntöjä.
 
 ---
 
@@ -131,9 +149,9 @@ Firebase SDK ladataan ES-moduuleina suoraan Googlen CDN:ltä ilman build-steppi�
 
 ### Periaatteet
 
-- **Kaikki testaus tapahtuu CI/CD-pipelinessa.** Ei erillistä monitorointia tuotannossa, ei erillisiä testiymppäristöjä.
+- **Kaikki testaus tapahtuu CI/CD-pipelinessa.** Ei erillistä monitorointia tuotannossa, ei erillisiä testiympäristöjä.
 - **Testit kirjoitetaan vanilla Bash + `curl` + standardit Unix-työkalut.** Ei testausframeworkeja (Playwright, Jest, Cypress tms.) koskaan.
-- **Pipeline on portti tuotantoon.** Kaikki testit ajetaan ennen tai välittömästi deployn jälkeen. Eppäonnistunut testi estää tai ilmoittaa ongelmasta.
+- **Pipeline on portti tuotantoon.** Kaikki testit ajetaan ennen tai välittömästi deployn jälkeen. Epäonnistunut testi estää tai ilmoittaa ongelmasta.
 - **Yksinkertaisuus ennen kattavuutta.** Yksi luotettava smoke-testi on parempi kuin kymmenen haurasta yksikkötestiä.
 
 ### Testit käytännössä
@@ -202,7 +220,7 @@ Turvallisuus varmistetaan Firebase-projektin puolella, ei avainten piilottamisel
 
 - **Authorized Domains** — vain `uutisseuranta.net` ja `jaakkokorhonen.github.io` voivat käynnistää Auth-flown. Mikään muu domain ei voi käyttää avainta kirjautumiseen, vaikka se olisi näkyvissä.
 - **Firebase Security Rules** — määritellään erikseen, kun tietokanta tai tallennus otetaan käyttöön. Säännöt määrittävät kuka pääsee dataan — ei avain.
-- **API Key HTTP referrer -rajoitus** — Google Cloud Consolessa avain voidaan rajata hyväksymään pyynnöt vain tuotantodomain-URLista. Suositellaan lisätäväksi, kun projekti kasvaa.
+- **API Key HTTP referrer -rajoitus** — Google Cloud Consolessa avain voidaan rajata hyväksymään pyynnöt vain tuotantodomain-URLista. Suositellaan lisättäväksi, kun projekti kasvaa.
 
 ### Palvelinpuolen avaimet
 
